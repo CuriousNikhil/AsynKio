@@ -1,12 +1,11 @@
-package xyz.mystikolabs.asynkio.core.response
+package xyz.mystikolabs.asynkio.response
 
 import org.json.JSONArray
 import org.json.JSONObject
-import xyz.mystikolabs.asynkio.core.extensions.getSuperclasses
-import xyz.mystikolabs.asynkio.core.helper.CaseInsensitiveMap
-import xyz.mystikolabs.asynkio.core.request.Request
-import xyz.mystikolabs.asynkio.core.request.RequestImpl
-import java.io.File
+import xyz.mystikolabs.asynkio.extensions.getSuperclasses
+import xyz.mystikolabs.asynkio.helper.CaseInsensitiveMap
+import xyz.mystikolabs.asynkio.request.Request
+import xyz.mystikolabs.asynkio.request.RequestImpl
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -43,24 +42,25 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
             check(this.requestMethod == method)
         }
 
-        internal val defaultStartInitializers: MutableList<(ResponseImpl, HttpURLConnection) -> Unit> = arrayListOf(
-            { response, connection ->
-                connection.forceMethod(response.request.method)
-            },
-            { response, connection ->
-                for ((key, value) in response.request.headers) {
-                    connection.setRequestProperty(key, value)
+        internal val defaultStartInitializers: MutableList<(ResponseImpl, HttpURLConnection) -> Unit> =
+            arrayListOf(
+                { response, connection ->
+                    connection.forceMethod(response.request.method)
+                },
+                { response, connection ->
+                    for ((key, value) in response.request.headers) {
+                        connection.setRequestProperty(key, value)
+                    }
+                },
+                { response, connection ->
+                    val timeout = (response.request.timeout * 1000.0).toInt()
+                    connection.connectTimeout = timeout
+                    connection.readTimeout = timeout
+                },
+                { _, connection ->
+                    connection.instanceFollowRedirects = false
                 }
-            },
-            { response, connection ->
-                val timeout = (response.request.timeout * 1000.0).toInt()
-                connection.connectTimeout = timeout
-                connection.readTimeout = timeout
-            },
-            { _, connection ->
-                connection.instanceFollowRedirects = false
-            }
-        )
+            )
     }
 
     internal fun URL.openRedirectingConnection(first: Response, receiver: HttpURLConnection.() -> Unit): HttpURLConnection {
@@ -74,10 +74,12 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
                 ResponseImpl(
                     RequestImpl(
                         method = this.method,
-                        url = this@openRedirectingConnection.toURI().resolve(connection.getHeaderField("Location")).toASCIIString(),
+                        url = this@openRedirectingConnection.toURI()
+                            .resolve(connection.getHeaderField("Location")).toASCIIString(),
                         headers = this.headers,
                         params = this.params,
                         data = this.data,
+                        auth = this.auth,
                         json = this.json,
                         timeout = this.timeout,
                         allowRedirects = false,
@@ -225,8 +227,11 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
         val headers = (this.request.headers as MutableMap<String, String>)
         val requests = this.connection.javaClass.getField("requests", this.connection) ?: return
         @Suppress("UNCHECKED_CAST")
-        val requestsHeaders = requests.javaClass.getDeclaredMethod("getHeaders").apply { this.isAccessible = true }.invoke(requests) as Map<String, List<String>>
-        headers += requestsHeaders.filterValues { it.filterNotNull().isNotEmpty() }.mapValues { it.value.joinToString(", ") }
+        val requestsHeaders = requests.javaClass.getDeclaredMethod("getHeaders")
+            .apply { this.isAccessible = true }
+            .invoke(requests) as Map<String, List<String>>
+        headers += requestsHeaders.filterValues { it.filterNotNull().isNotEmpty() }
+            .mapValues { it.value.joinToString(", ") }
     }
 
     /**

@@ -1,16 +1,17 @@
-package xyz.mystikolabs.asynkio.core.request
+package xyz.mystikolabs.asynkio.request
 
 import org.json.JSONArray
 import org.json.JSONObject
-import xyz.mystikolabs.asynkio.core.extensions.putAllIfAbsentWithNull
-import xyz.mystikolabs.asynkio.core.helper.CaseInsensitiveMutableMap
-import xyz.mystikolabs.asynkio.core.helper.Parameters
+import xyz.mystikolabs.asynkio.extensions.putAllIfAbsentWithNull
+import xyz.mystikolabs.asynkio.helper.CaseInsensitiveMutableMap
+import xyz.mystikolabs.asynkio.helper.Parameters
 import java.io.StringWriter
 import java.net.IDN
 import java.net.URI
 import java.net.URL
 import java.net.URLDecoder
 import org.json.*
+import xyz.mystikolabs.asynkio.helper.Auth
 
 
 class RequestImpl internal constructor(
@@ -18,6 +19,7 @@ class RequestImpl internal constructor(
     url: String,
     override val params: Map<String, String>,
     headers: Map<String, String?>,
+    override val auth: Auth?,
     data: Any?,
     override val json: Any?,
     override val timeout: Double,
@@ -28,8 +30,7 @@ class RequestImpl internal constructor(
     companion object {
         val DEFAULT_HEADERS = mapOf(
             "Accept" to "*/*",
-            "Accept-Encoding" to "gzip, deflate",
-            "User-Agent" to "khttp/1.0.0-SNAPSHOT"
+            "Accept-Encoding" to "gzip, deflate"
         )
         val DEFAULT_DATA_HEADERS = mapOf(
             "Content-Type" to "text/plain"
@@ -67,6 +68,12 @@ class RequestImpl internal constructor(
             mutableHeaders.putAllIfAbsentWithNull(RequestImpl.DEFAULT_JSON_HEADERS)
         }
         mutableHeaders.putAllIfAbsentWithNull(RequestImpl.DEFAULT_HEADERS)
+
+        val auth = this.auth
+        if (auth != null) {
+            val header = auth.header
+            mutableHeaders[header.first] = header.second
+        }
         val nonNullHeaders: MutableMap<String, String>
                 = mutableHeaders.filterValues { it != null }.mapValues { it.value!! }.toSortedMap()
 
@@ -105,7 +112,9 @@ class RequestImpl internal constructor(
     private fun URL.toIDN(): URL {
         val newHost = IDN.toASCII(this.host)
         this.javaClass.getDeclaredField("host").apply { this.isAccessible = true }.set(this, newHost)
-        this.javaClass.getDeclaredField("authority").apply { this.isAccessible = true }.set(this, if (this.port == -1) this.host else "${this.host}:${this.port}")
+        this.javaClass.getDeclaredField("authority")
+            .apply { this.isAccessible = true }
+            .set(this, if (this.port == -1) this.host else "${this.host}:${this.port}")
         val query = if (this.query == null) {
             null
         } else {
@@ -114,6 +123,8 @@ class RequestImpl internal constructor(
         return URL(URI(this.protocol, this.userInfo, this.host, this.port, this.path, query, this.ref).toASCIIString())
     }
 
-    private fun makeRoute(route: String) = URL(route + if (this.params.isNotEmpty()) "?${Parameters(this.params)}" else "").toIDN().toString()
+    private fun makeRoute(route: String) =
+        URL(route +
+                if (this.params.isNotEmpty()) "?${Parameters(this.params)}" else "").toIDN().toString()
 
 }

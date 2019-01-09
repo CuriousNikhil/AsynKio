@@ -5,7 +5,7 @@ import android.app.Fragment
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import me.nikhya.asynkio.core.*
+import xyz.mystikolabs.asynkio.extensions.AsyncException
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

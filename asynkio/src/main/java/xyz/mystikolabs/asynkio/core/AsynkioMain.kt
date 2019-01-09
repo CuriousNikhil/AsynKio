@@ -30,11 +30,11 @@ fun Fragment.async(c: suspend AsynkHandler.() -> Unit): AsynkHandler {
     return async(c, controller)
 }
 
-//fun android.support.v4.app.Fragment.async(c: suspend AsynkHandler.() -> Unit): AsynkHandler {
-//    val controller = AsynkHandler(this)
-//    keepCoroutineForCancelPurpose(controller)
-//    return async(c, controller)
-//}
+fun android.support.v4.app.Fragment.async(c: suspend AsynkHandler.() -> Unit): AsynkHandler {
+    val controller = AsynkHandler(this)
+    keepCoroutineForCancelPurpose(controller)
+    return async(c, controller)
+}
 
 internal fun async(c: suspend AsynkHandler.() -> Unit,
                    controller: AsynkHandler

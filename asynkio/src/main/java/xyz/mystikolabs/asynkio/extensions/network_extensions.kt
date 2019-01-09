@@ -1,8 +1,6 @@
-package xyz.mystikolabs.asynkio.core.extensions
+package xyz.mystikolabs.asynkio.extensions
 
-import java.io.File
 import java.io.Writer
-import java.nio.file.Path
 
 
 internal fun Writer.writeAndFlush(string: String) {

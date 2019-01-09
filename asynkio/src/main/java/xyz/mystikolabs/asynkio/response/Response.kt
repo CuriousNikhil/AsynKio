@@ -1,8 +1,8 @@
-package xyz.mystikolabs.asynkio.core.response
+package xyz.mystikolabs.asynkio.response
 
 import org.json.JSONArray
 import org.json.JSONObject
-import xyz.mystikolabs.asynkio.core.request.Request
+import xyz.mystikolabs.asynkio.request.Request
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.nio.charset.Charset

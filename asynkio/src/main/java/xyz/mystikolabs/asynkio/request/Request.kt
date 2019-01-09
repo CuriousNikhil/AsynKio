@@ -1,4 +1,6 @@
-package xyz.mystikolabs.asynkio.core.request
+package xyz.mystikolabs.asynkio.request
+
+import xyz.mystikolabs.asynkio.helper.Auth
 
 interface Request {
 
@@ -9,6 +11,8 @@ interface Request {
     val params: Map<String, String>
 
     val headers: Map<String, String>
+
+    val auth:Auth?
 
     val data: Any?
 
