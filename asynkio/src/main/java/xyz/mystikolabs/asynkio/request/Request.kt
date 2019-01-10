@@ -14,6 +14,8 @@ interface Request {
 
     val auth:Auth?
 
+    val body:ByteArray
+
     val data: Any?
 
     val json: Any?

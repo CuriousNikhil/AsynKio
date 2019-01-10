@@ -9,6 +9,7 @@ import org.json.JSONObject
 import xyz.mystikolabs.asynkio.core.async
 import xyz.mystikolabs.asynkio.core.get
 import xyz.mystikolabs.asynkio.core.post
+import xyz.mystikolabs.asynkio.extensions.combine
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,18 +20,16 @@ class MainActivity : AppCompatActivity() {
         async {
             Log.i("ala","ala")
             val obj = JSONObject()
-            obj.put("email","nikhil@nikhil.com")
-            obj.put("password","bhokat")
+            obj.put("email","sydney@fife")
+            obj.put("password","pistol")
             val result = await {
-                post(url="https://reqres.in/api/register",data = obj)
+                val users = get("https://reqres.in/api/users")
+                val token = post(url="https://reqres.in/api/login",data =
+                mapOf("email" to "peter@klaven", "password" to "cityslicka"))
+                return@await users.combine(token)
             }
-            if (result.statusCode == 201){
                 Log.i("ala","ajun khali ala")
-                result_text.text = result.jsonObject.toString()
-                Toast.makeText(this@MainActivity,"${result.jsonObject}",Toast.LENGTH_LONG).show()
-            }else{
-                result_text.text = result.url.plus("  ${result.statusCode}")
-            }
+                result_text.text = result["0"]?.text.plus("\n").plus(result["1"]?.text)
         }
 
     }

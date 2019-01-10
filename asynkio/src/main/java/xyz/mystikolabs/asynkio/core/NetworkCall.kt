@@ -67,7 +67,7 @@ fun put(url: String, headers: Map<String, String?> = mapOf(),
 
 @JvmOverloads
 fun request(method: String, url: String, headers: Map<String, String?> = mapOf(),
-            params: Map<String, String> = mapOf(), auth:Auth?=null,data: Any? = null,
+            params: Map<String, String> = mapOf(), auth:Auth?=null, data: Any? = null,
             json: Any? = null, timeout: Double = DEFAULT_TIMEOUT,
             allowRedirects: Boolean? = null, stream: Boolean = false): Response {
     return ResponseImpl(RequestImpl(method, url, params, headers,auth, data,

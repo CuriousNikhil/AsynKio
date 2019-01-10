@@ -24,7 +24,8 @@ internal class AwaitWithProgressTask<P, V>(val f: (ProgressHandler<P>) -> V,
 
 }
 
-internal class AwaitTask<V>(val f: () -> V, asyncController: AsynkHandler, continuation: Continuation<V>)
+internal class AwaitTask<V>(val f: () -> V, asyncController: AsynkHandler,
+                            continuation: Continuation<V>)
     : CancelableTask<V>(asyncController, continuation) {
     override fun obtainValue(): V {
         return f()

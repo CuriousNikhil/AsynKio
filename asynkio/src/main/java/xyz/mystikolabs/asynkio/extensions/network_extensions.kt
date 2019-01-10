@@ -1,11 +1,24 @@
 package xyz.mystikolabs.asynkio.extensions
 
+import xyz.mystikolabs.asynkio.response.Response
 import java.io.Writer
 
 
 internal fun Writer.writeAndFlush(string: String) {
     this.write(string)
     this.flush()
+}
+
+fun Response.combine(vararg otherResponse:Response):Map<String,Response>{
+    var i = 0
+    val combineResponse = mutableMapOf<String, Response>()
+    combineResponse["$i"] = this
+    i.plus(1)
+    otherResponse.forEach {
+        combineResponse["$i"] = it
+        i.plus(1)
+    }
+    return combineResponse.toMap()
 }
 
 fun ByteArray.splitLines(): List<ByteArray> {

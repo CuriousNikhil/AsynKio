@@ -6,6 +6,7 @@ import xyz.mystikolabs.asynkio.extensions.getSuperclasses
 import xyz.mystikolabs.asynkio.helper.CaseInsensitiveMap
 import xyz.mystikolabs.asynkio.request.Request
 import xyz.mystikolabs.asynkio.request.RequestImpl
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -61,9 +62,20 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
                     connection.instanceFollowRedirects = false
                 }
             )
+
+        internal val defaultEndInitializers: MutableList<(ResponseImpl, HttpURLConnection)
+        -> Unit> = arrayListOf(
+            { response, connection ->
+                val body = response.request.body
+                if (body.isEmpty()) return@arrayListOf
+                connection.doOutput = true
+                connection.outputStream.use { it.write(body) }
+            }
+        )
     }
 
-    internal fun URL.openRedirectingConnection(first: Response, receiver: HttpURLConnection.() -> Unit): HttpURLConnection {
+    internal fun URL.openRedirectingConnection(first: Response, receiver: HttpURLConnection.() -> Unit)
+            : HttpURLConnection {
         val connection = (this.openConnection() as HttpURLConnection).apply {
             this.instanceFollowRedirects = false
             this.receiver()
@@ -104,9 +116,8 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
             if (this._connection == null) {
                 this._connection = URL(this.request.url).openRedirectingConnection(this._history.firstOrNull() ?:
                 this.apply { this._history.add(this) }) {
-                    (ResponseImpl.defaultStartInitializers +
-                            this@ResponseImpl.initializers +
-                            ResponseImpl.defaultStartInitializers).forEach {
+                    (ResponseImpl.defaultStartInitializers + this@ResponseImpl.initializers +
+                            ResponseImpl.defaultEndInitializers).forEach {
                         it(this@ResponseImpl, this)
                     }
                 }

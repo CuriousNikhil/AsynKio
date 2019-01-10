@@ -12,6 +12,7 @@ import java.net.URL
 import java.net.URLDecoder
 import org.json.*
 import xyz.mystikolabs.asynkio.helper.Auth
+import java.io.ByteArrayOutputStream
 
 
 class RequestImpl internal constructor(
@@ -51,6 +52,34 @@ class RequestImpl internal constructor(
     override val headers: Map<String, String>
     override val data: Any?
     override val allowRedirects = allowRedirects ?: (this.method != "HEAD")
+
+    private var _body:ByteArray? = null
+    override val body: ByteArray
+        get() {
+            if (this._body == null){
+                val requestData = this.data
+                if (requestData == null) {
+                    this._body = ByteArray(0)
+                    return this._body ?: throw IllegalStateException("Set to null by another thread")
+                }
+                val data: Any? = if (requestData != null) {
+                    if (requestData is Map<*, *> && requestData !is Parameters) {
+                        Parameters(requestData.mapKeys { it.key.toString() }.mapValues { it.value.toString() })
+                    } else {
+                        requestData
+                    }
+                } else {
+                    null
+                }
+                if (data != null) {
+                    require(data is Map<*, *>) { "data must be a Map" }
+                }
+                val bytes = ByteArrayOutputStream()
+                bytes.write(data.toString().toByteArray())
+                this._body = bytes.toByteArray()
+            }
+            return this._body?: throw IllegalStateException("Set to null by another thread")
+        }
 
 
     init {
