@@ -24,7 +24,6 @@ interface Response {
 
     val jsonArray: JSONArray
 
-
     val url: String
 
     var encoding: Charset

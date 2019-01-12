@@ -53,14 +53,15 @@ class RequestImpl internal constructor(
     override val data: Any?
     override val allowRedirects = allowRedirects ?: (this.method != "HEAD")
 
-    private var _body:ByteArray? = null
+    private var _body: ByteArray? = null
     override val body: ByteArray
         get() {
-            if (this._body == null){
+            if (this._body == null) {
                 val requestData = this.data
                 if (requestData == null) {
                     this._body = ByteArray(0)
-                    return this._body ?: throw IllegalStateException("Set to null by another thread")
+                    return this._body
+                        ?: throw IllegalStateException("Set to null by another thread")
                 }
                 val data: Any? = if (requestData != null) {
                     if (requestData is Map<*, *> && requestData !is Parameters) {
@@ -78,7 +79,7 @@ class RequestImpl internal constructor(
                 bytes.write(data.toString().toByteArray())
                 this._body = bytes.toByteArray()
             }
-            return this._body?: throw IllegalStateException("Set to null by another thread")
+            return this._body ?: throw IllegalStateException("Set to null by another thread")
         }
 
 
@@ -103,8 +104,8 @@ class RequestImpl internal constructor(
             val header = auth.header
             mutableHeaders[header.first] = header.second
         }
-        val nonNullHeaders: MutableMap<String, String>
-                = mutableHeaders.filterValues { it != null }.mapValues { it.value!! }.toSortedMap()
+        val nonNullHeaders: MutableMap<String, String> =
+            mutableHeaders.filterValues { it != null }.mapValues { it.value!! }.toSortedMap()
 
         this.headers = CaseInsensitiveMutableMap(nonNullHeaders)
     }
@@ -140,7 +141,8 @@ class RequestImpl internal constructor(
 
     private fun URL.toIDN(): URL {
         val newHost = IDN.toASCII(this.host)
-        this.javaClass.getDeclaredField("host").apply { this.isAccessible = true }.set(this, newHost)
+        this.javaClass.getDeclaredField("host").apply { this.isAccessible = true }
+            .set(this, newHost)
         this.javaClass.getDeclaredField("authority")
             .apply { this.isAccessible = true }
             .set(this, if (this.port == -1) this.host else "${this.host}:${this.port}")
@@ -149,11 +151,23 @@ class RequestImpl internal constructor(
         } else {
             URLDecoder.decode(this.query, "UTF-8")
         }
-        return URL(URI(this.protocol, this.userInfo, this.host, this.port, this.path, query, this.ref).toASCIIString())
+        return URL(
+            URI(
+                this.protocol,
+                this.userInfo,
+                this.host,
+                this.port,
+                this.path,
+                query,
+                this.ref
+            ).toASCIIString()
+        )
     }
 
     private fun makeRoute(route: String) =
-        URL(route +
-                if (this.params.isNotEmpty()) "?${Parameters(this.params)}" else "").toIDN().toString()
+        URL(
+            route +
+                    if (this.params.isNotEmpty()) "?${Parameters(this.params)}" else ""
+        ).toIDN().toString()
 
 }

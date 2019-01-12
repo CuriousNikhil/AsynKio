@@ -9,16 +9,14 @@ internal fun Writer.writeAndFlush(string: String) {
     this.flush()
 }
 
-fun Response.combine(vararg otherResponse:Response):Map<String,Response>{
+fun Response.combine(vararg otherResponse:Response):List<Response>{
     var i = 0
-    val combineResponse = mutableMapOf<String, Response>()
-    combineResponse["$i"] = this
-    i.plus(1)
+    val combineResponse = mutableListOf<Response>()
+    combineResponse.add(this)
     otherResponse.forEach {
-        combineResponse["$i"] = it
-        i.plus(1)
+        combineResponse.add(it)
     }
-    return combineResponse.toMap()
+    return combineResponse.toList()
 }
 
 fun ByteArray.splitLines(): List<ByteArray> {

@@ -6,7 +6,6 @@ import xyz.mystikolabs.asynkio.extensions.getSuperclasses
 import xyz.mystikolabs.asynkio.helper.CaseInsensitiveMap
 import xyz.mystikolabs.asynkio.request.Request
 import xyz.mystikolabs.asynkio.request.RequestImpl
-import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -30,12 +29,15 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
             } catch (ex: ProtocolException) {
                 try {
                     (this.javaClass.getDeclaredField("delegate")
-                        .apply { this.isAccessible = true }.get(this) as HttpURLConnection?)?.forceMethod(method)
+                        .apply {
+                            this.isAccessible = true
+                        }.get(this) as HttpURLConnection?)?.forceMethod(method)
                 } catch (ex: NoSuchFieldException) {
                 }
                 (this.javaClass.getSuperclasses() + this.javaClass).forEach {
                     try {
-                        it.getDeclaredField("method").apply { this.isAccessible = true }.set(this, method)
+                        it.getDeclaredField("method").apply { this.isAccessible = true }
+                            .set(this, method)
                     } catch (ex: NoSuchFieldException) {
                     }
                 }
@@ -74,14 +76,18 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
         )
     }
 
-    internal fun URL.openRedirectingConnection(first: Response, receiver: HttpURLConnection.() -> Unit)
+    internal fun URL.openRedirectingConnection(
+        first: Response,
+        receiver: HttpURLConnection.() -> Unit
+    )
             : HttpURLConnection {
         val connection = (this.openConnection() as HttpURLConnection).apply {
             this.instanceFollowRedirects = false
             this.receiver()
             this.connect()
         }
-        if (first.request.allowRedirects && connection.responseCode in arrayOf(301, 302, 303, 307, 308)) {
+        if (first.request.allowRedirects &&
+            connection.responseCode in arrayOf(301, 302, 303, 307, 308)) {
             val req = with(first.request) {
                 ResponseImpl(
                     RequestImpl(
@@ -114,8 +120,8 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
     override val connection: HttpURLConnection
         get() {
             if (this._connection == null) {
-                this._connection = URL(this.request.url).openRedirectingConnection(this._history.firstOrNull() ?:
-                this.apply { this._history.add(this) }) {
+                this._connection = URL(this.request.url).openRedirectingConnection(
+                    this._history.firstOrNull() ?: this.apply { this._history.add(this) }) {
                     (ResponseImpl.defaultStartInitializers + this@ResponseImpl.initializers +
                             ResponseImpl.defaultEndInitializers).forEach {
                         it(this@ResponseImpl, this)
@@ -138,9 +144,12 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
     override val headers: Map<String, String>
         get() {
             if (this._headers == null) {
-                this._headers = this.connection.headerFields.mapValues { it.value.joinToString(", ") }.filterKeys { it != null }
+                this._headers =
+                        this.connection.headerFields.mapValues { it.value.joinToString(", ") }
+                            .filterKeys { it != null }
             }
-            val headers = this._headers ?: throw IllegalStateException("Set to null by another thread")
+            val headers =
+                this._headers ?: throw IllegalStateException("Set to null by another thread")
             return CaseInsensitiveMap(headers)
         }
 
@@ -196,10 +205,13 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
     override var encoding: Charset
         get() {
             if (this._encoding != null) {
-                return this._encoding ?: throw IllegalStateException("Set to null by another thread")
+                return this._encoding
+                    ?: throw IllegalStateException("Set to null by another thread")
             }
             this.headers["Content-Type"]?.let {
-                val charset = it.split(";").map { it.split("=") }.filter { it[0].trim().toLowerCase() == "charset" }.filter { it.size == 2 }.map { it[1] }.firstOrNull()
+                val charset = it.split(";").map { it.split("=") }
+                    .filter { it[0].trim().toLowerCase() == "charset" }.filter { it.size == 2 }
+                    .map { it[1] }.firstOrNull()
                 return Charset.forName(charset?.toUpperCase() ?: Charsets.UTF_8.name())
             }
             return Charsets.UTF_8
@@ -219,14 +231,17 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
     private fun <T : URLConnection> Class<T>.getField(name: String, instance: T): Any? {
         (this.getSuperclasses() + this).forEach { clazz ->
             try {
-                return clazz.getDeclaredField(name).apply { this.isAccessible = true }.get(instance).apply { if (this == null) throw Exception() }
-            } catch(ex: Exception) {
+                return clazz.getDeclaredField(name).apply { this.isAccessible = true }.get(instance)
+                    .apply { if (this == null) throw Exception() }
+            } catch (ex: Exception) {
                 try {
-                    val delegate = clazz.getDeclaredField("delegate").apply { this.isAccessible = true }.get(instance)
+                    val delegate =
+                        clazz.getDeclaredField("delegate").apply { this.isAccessible = true }
+                            .get(instance)
                     if (delegate is URLConnection) {
                         return delegate.javaClass.getField(name, delegate)
                     }
-                } catch(ex: NoSuchFieldException) {
+                } catch (ex: NoSuchFieldException) {
                     // ignore
                 }
             }
@@ -245,14 +260,12 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
             .mapValues { it.value.joinToString(", ") }
     }
 
-    /**
-     * Used to ensure that the proper connection has been made.
-     */
+
     internal fun init() {
         if (this.request.stream) {
-            this.connection // Establish connection if streaming
+            this.connection
         } else {
-            this.content // Download content if not
+            this.content
         }
         this.updateRequestHeaders()
     }

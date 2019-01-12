@@ -2,14 +2,7 @@ package xyz.mystikolabs.asynkioapp
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
-import org.json.JSONObject
-import xyz.mystikolabs.asynkio.core.async
-import xyz.mystikolabs.asynkio.core.get
-import xyz.mystikolabs.asynkio.core.post
-import xyz.mystikolabs.asynkio.extensions.combine
+import xyz.mystikolabs.asynkio.core.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,20 +11,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         async {
-            Log.i("ala","ala")
-            val obj = JSONObject()
-            obj.put("email","sydney@fife")
-            obj.put("password","pistol")
+            val userid = "2"
             val result = await {
-                val users = get("https://reqres.in/api/users")
-                val token = post(url="https://reqres.in/api/login",data =
-                mapOf("email" to "peter@klaven", "password" to "cityslicka"))
-                return@await users.combine(token)
-            }
-                Log.i("ala","ajun khali ala")
-                result_text.text = result["0"]?.text.plus("\n").plus(result["1"]?.text)
-        }
+                val user = get("https://awwapi.com/users/", params = mapOf("id" to userid))
+                val cash = user.jsonObject.getInt("prize_won")
 
+                return@await post("https://awwapi.com/reward", data = mapOf("id" to userid,
+                    "reward" to cash))
+            }
+            println(result.text)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        async.cancelAll()
     }
 
 }
