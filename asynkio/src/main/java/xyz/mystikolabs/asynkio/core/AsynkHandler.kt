@@ -16,9 +16,6 @@ import kotlin.coroutines.suspendCoroutine
 
 private val workers = WeakHashMap<Any, ExecutorService>()
 
-/**
- * Controls coroutine execution and thread scheduling
- */
 class AsynkHandler(private val target: Any) {
 
     private var errorHandler: ErrorHandler? = null
@@ -108,10 +105,6 @@ class AsynkHandler(private val target: Any) {
         }
     }
 
-    /*
-* The result will be returned to the UI thread
-* The coroutine will run until the next suspension point
-* */
     suspend fun <V> await(f: () -> V): V {
         holdCallerStackTrace()
         return suspendCoroutine {

@@ -3,6 +3,7 @@ package xyz.mystikolabs.asynkioapp
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import xyz.mystikolabs.asynkio.core.*
+import xyz.mystikolabs.asynkio.helper.BaseAuth
 
 class MainActivity : AppCompatActivity() {
 
@@ -11,15 +12,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         async {
-            val userid = "2"
             val result = await {
-                val user = get("https://awwapi.com/users/", params = mapOf("id" to userid))
-                val cash = user.jsonObject.getInt("prize_won")
-
-                return@await post("https://awwapi.com/reward", data = mapOf("id" to userid,
-                    "reward" to cash))
+                val response = get("https://blog-alpha.testbook.com/mobile_blog_api.php?type=2",
+                    auth = BaseAuth("Authorization","tbbloguser:testb00k"))
             }
-            println(result.text)
         }
     }
 
