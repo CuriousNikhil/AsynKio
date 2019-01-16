@@ -1,6 +1,29 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+ext{
+    bintrayRepo = "Asynkio"
+    bintrayName = "me.nikhilchaudhari.asynkio"
+    libraryName = 'asynkio'
+
+    publishedGroupId = 'me.nikhilchaudhari'
+    artifact = 'asynkio'
+    libraryVersion = '1.0.0-alpha'
+
+    libraryDescription = 'Asynchrounous async-await port of python in Kotlin'
+    siteUrl = 'https://github.com/CuriousNikhil/AsynKio'
+    gitUrl = 'https://github.com/CuriousNikhil/AsynKio.git'
+    developerId = 'curiousNikhil'
+    developerName = 'Nikhil Chaudhari'
+    developerEmail = 'nikhyl777@gmai.com'
+    licenseName = 'MIT License'
+    licenseUrl = "https://github.com/CuriousNikhil/AsynKio/blob/master/LICENSE"
+    allLicenses = ["MIT License"]
+
+}
 
 android {
     compileSdkVersion 28
@@ -34,4 +57,13 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+repositories{
+    mavenCentral()
+}
+
+if (project.rootProject.file('local.properties').exists()){
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
 }
