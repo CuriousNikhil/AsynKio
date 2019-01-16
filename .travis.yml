@@ -1,16 +1,18 @@
 language: node_js
 node_js:
 - 4
++ before_install:
++ - nvm install 4
 
 env:
   global:
   - GIT_NAME: Travis CI
-  - GIT_EMAIL: nobody@nobody.org
-  - GITHUB_REPO: rstacruz/myproject
+  - GIT_EMAIL: nikhyl777@gmail.com
+  - GITHUB_REPO: curiousnikhil/asynkio
   - GIT_SOURCE: _docpress
 
 script:
-- rake     # ...or whatever your test command is
+- rake
 - npm install docpress && ./node_modules/.bin/docpress build
 
 after_success:
