@@ -16,8 +16,7 @@ class MainActivity : AppCompatActivity() {
         async {
             val response = await {
                 val one = get("https://isthisawesome.com/library", auth = BaseAuth("Authorization","awesome:me"), params = mapOf("library" to "Asynkio"))
-                val two = post("https://youareonfire.com/library", data = mapOf("id" to one.jsonObject["id"]))
-                return@await two
+                post("https://youareonfire.com/library", data = mapOf("id" to one.jsonObject["id"]))
             }
             if (response.statusCode == 200){
                 result_text.text = response.text
