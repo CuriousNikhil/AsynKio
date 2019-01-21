@@ -11,7 +11,7 @@ Add the following line as a dependency in your app level `build.gradle` file
 ## Usage:Basics
 
 ### async
-`async` is where you pass your code block as a lambda
+`async` is where you pass your code block as a lambda. `async` is an extension to `Any`, `Activity` and `Fragment` scope.
 
     async{
         //suspending lambda/ coroutine
@@ -53,3 +53,40 @@ You can get result of long running code as a return value from `await` and you c
           // Handle exception in UI thread
        }
     }
+
+**Handle exceptions in `onError` block**
+
+Unhandled exceptions and exception delivered in `onError` wrapped by `AsyncException`
+
+    async{
+        val result = await{
+            //exception is thrown on background thread
+        }
+        // process the result on main thread
+    }.onError{
+        // Handle the exception in UI thread
+    }
+
+Use `finally{}` block to called after error or finishing coroutine
+
+    async{
+        showProgress()
+        val result = await{....}
+    }.onError{
+        //handle exception
+    }.finally{
+        hideProgress()
+    }
+
+
+### Avoid memory leaks
+Long running job on coroutine, when activity/fragment/lifecycle-aware-component is destroyed, may produce memory leaks.
+To avoid this always invoke `cancelAll()` on current `async` block whenever an activity/fragment is being destroyed.
+
+    override fun onDestroy(){
+        //...
+        //..
+        async.cancelAll()
+    }
+
+Those are the basics of library. Check [network requests](/network.md) with AsynKio
