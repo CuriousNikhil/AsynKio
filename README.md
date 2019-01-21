@@ -1,7 +1,10 @@
-# Asynkio
-Write IO/ Network calls painlessly
+# Asynkio : Write asynced IO/ Network calls painlessly in android
 
-**Write IO/ Network calls painlessly.**
+[ ![Download](https://api.bintray.com/packages/curiousnikhil/Asynkio/me.nikhilchaudhari.asynkio/images/download.svg?version=1.0.0-alpha) ](https://bintray.com/curiousnikhil/Asynkio/me.nikhilchaudhari.asynkio/1.0.0-alpha/link)|
+[ ![Build Status](https://travis-ci.org/CuriousNikhil/AsynKio.svg?branch=master)](https://travis-ci.org/CuriousNikhil/AsynKio)
+
+Write your network requests, IO calls in android with Kotlin seamlessly.
+**Asyncio** Inspired by python's [`asyncio`](https://docs.python.org/3/library/asyncio.html)
 
 What I mean is..
 
@@ -36,3 +39,17 @@ Another example
 
 Want to use it? Checkout full documentation over here [Getting Started](https://curiousnikhil.github.io/AsynKio/#/)
 
+
+### Implementation
+**`Gradle`**
+
+    implementation 'me.nikhilchaudhari:asynkio:1.0.0-alpha'
+
+**`Maven`**
+
+    <dependency>
+    	<groupId>me.nikhilchaudhari</groupId>
+    	<artifactId>asynkio</artifactId>
+    	<version>1.0.0-alpha</version>
+    	<type>pom</type>
+    </dependency>
