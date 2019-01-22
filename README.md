@@ -1,10 +1,10 @@
-# Asynkio : Write asynced IO/ Network calls painlessly in android
+# Asynkio : Write asynced IO/ Network calls painlessly on android
 
 [ ![Download](https://api.bintray.com/packages/curiousnikhil/Asynkio/me.nikhilchaudhari.asynkio/images/download.svg?version=1.0.0-alpha) ](https://bintray.com/curiousnikhil/Asynkio/me.nikhilchaudhari.asynkio/1.0.0-alpha/link)|
 [ ![Build Status](https://travis-ci.org/CuriousNikhil/AsynKio.svg?branch=master)](https://travis-ci.org/CuriousNikhil/AsynKio)
 
 Write your network requests, IO calls in android with Kotlin seamlessly.
-**Asyncio** Inspired by python's [`asyncio`](https://docs.python.org/3/library/asyncio.html)
+**Asynkio** Inspired by python's [`asyncio`](https://docs.python.org/3/library/asyncio.html)
 
 What I mean is..
 
@@ -12,10 +12,10 @@ What I mean is..
         //All network requests on couroutines
         val response = await {
             //Get the data
-            val firstResponse = get("https://isthisawesome.com/library", params = mapOf("library" to "Asynkio"))
+            val resp = get("https://awesome.com/lib", params = mapOf("lib" to "Asynkio"))
 
             //Post the data
-            return@await post("https://youareonfire.com/library", data = mapOf("id" to firstResponse.jsonObject["id"]))
+            return@await post("https://youareonfire.com/lib", data = mapOf("id" to resp.jsonObject["id"]))
         }
         //Process the result on UI thread
         if (response.statusCode == 200){
