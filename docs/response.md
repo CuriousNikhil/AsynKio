@@ -31,3 +31,6 @@ In case you’re dealing with `JSON` data, Asynkio will use `org.json.json` to p
 
 Note that if you attempt to access `jsonObject` but the content is an array, an exception will be thrown and vice versa.
 If the content is not JSON, an exception will also be thrown.
+
+### RAW response text
+The raw response if in case you want to read for ex InputStream will be used `r.raw`. This work is in progress.
