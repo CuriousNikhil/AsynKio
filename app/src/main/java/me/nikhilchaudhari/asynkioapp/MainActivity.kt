@@ -6,12 +6,21 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import me.nikhilchaudhari.asynkio.core.*
 import me.nikhilchaudhari.asynkio.helper.BaseAuth
+import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val data = mapOf("this" to "this")
+        async {
+            val result = await { get("https://your.api", json = data, allowRedirects = false, timeout = 0.01) }
+
+            result.history
+        }
+        get("some", data = JSONObject(data))
 
         async {
             val response = await {
