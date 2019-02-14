@@ -6,7 +6,7 @@ What I mean is..
 
 [](_media/index_page.kt ':include :type=code kotlin')
 
-Yes, that's it. No retrofit. No Volley. Java/Kotlin are very bad at handling the http requests, but still `Asynkio` is the optimal way. No extra overhead, Seriously...No bullshit!
+Yes, that's it. No livedata.md. No Volley. Java/Kotlin are very bad at handling the http requests, but still `Asynkio` is the optimal way. No extra overhead, Seriously...No bullshit!
 
 Another example
 
