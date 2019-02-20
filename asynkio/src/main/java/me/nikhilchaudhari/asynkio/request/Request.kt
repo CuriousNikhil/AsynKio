@@ -1,5 +1,6 @@
 package me.nikhilchaudhari.asynkio.request
 
+import me.nikhilchaudhari.asynkio.extensions.RawFiles
 import me.nikhilchaudhari.asynkio.helper.Auth
 
 interface Request {
@@ -25,4 +26,7 @@ interface Request {
     val allowRedirects: Boolean
 
     val stream: Boolean
+
+    val files: List<RawFiles>
+
 }

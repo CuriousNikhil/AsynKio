@@ -3,9 +3,12 @@ package me.nikhilchaudhari.asynkio.response
 import org.json.JSONArray
 import org.json.JSONObject
 import me.nikhilchaudhari.asynkio.extensions.getSuperclasses
+import me.nikhilchaudhari.asynkio.extensions.split
+import me.nikhilchaudhari.asynkio.extensions.splitLines
 import me.nikhilchaudhari.asynkio.helper.CaseInsensitiveMap
 import me.nikhilchaudhari.asynkio.request.Request
 import me.nikhilchaudhari.asynkio.request.RequestImpl
+import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
@@ -20,8 +23,86 @@ import java.util.zip.InflaterInputStream
 
 class ResponseImpl internal constructor(override val request: Request) : Response {
 
-    internal companion object {
 
+    override fun contentIterator(chunkSize: Int): Iterator<ByteArray> {
+        return object : Iterator<ByteArray> {
+            var readBytes: ByteArray = ByteArray(0)
+            val stream = if (this@ResponseImpl.request.stream) this@ResponseImpl.raw else this@ResponseImpl.content.inputStream()
+
+            override fun next(): ByteArray {
+                val bytes = readBytes
+                val readSize = Math.min(chunkSize, bytes.size + stream.available())
+                val left = if (bytes.size > readSize) {
+                    return bytes.asList().subList(0, readSize).toByteArray().apply {
+                        readBytes = bytes.asList().subList(readSize, bytes.size).toByteArray()
+                    }
+                } else if (bytes.isNotEmpty()) {
+                    readSize - bytes.size
+                } else {
+                    readSize
+                }
+                val array = ByteArray(left).apply { stream.read(this) }
+                readBytes = ByteArray(0)
+                return bytes + array
+            }
+
+            override fun hasNext(): Boolean {
+                return try {
+                    val mark = this@ResponseImpl.raw.markSupported()
+                    if (mark) {
+                        this@ResponseImpl.raw.mark(1)
+                    }
+                    val read = this@ResponseImpl.raw.read()
+                    if (read == -1) {
+                        stream.close()
+                        false
+                    } else {
+                        if (mark) {
+                            this@ResponseImpl.raw.reset()
+                        } else {
+                            readBytes += ByteArray(1).apply { this[0] = read.toByte() }
+                        }
+                        true
+                    }
+                } catch(ex: IOException) {
+                    false
+                }
+            }
+        }
+    }
+
+    override fun lineIterator(chunkSize: Int, delimiter: ByteArray?): Iterator<ByteArray> {
+        return object : Iterator<ByteArray> {
+            val byteArrays = this@ResponseImpl.contentIterator(chunkSize)
+            var leftOver: ByteArray? = null
+            val overflow = arrayListOf<ByteArray>()
+
+            override fun next(): ByteArray {
+                if (overflow.isNotEmpty()) return overflow.removeAt(0)
+                while (byteArrays.hasNext()) {
+                    do {
+                        val left = leftOver
+                        val array = byteArrays.next()
+                        if (array.isEmpty()) break
+                        val content = if (left != null) left + array else array
+                        leftOver = content
+                        val split = if (delimiter == null) content.splitLines() else content.split(delimiter)
+                        if (split.size >= 2) {
+                            leftOver = split.last()
+                            overflow.addAll(split.subList(1, split.size - 1))
+                            return split[0]
+                        }
+                    } while (split.size < 2)
+                }
+                return leftOver!!
+            }
+
+            override fun hasNext() = overflow.isNotEmpty() || byteArrays.hasNext()
+
+        }
+    }
+
+    internal companion object {
 
         internal fun HttpURLConnection.forceMethod(method: String) {
             try {
@@ -72,6 +153,24 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
                 if (body.isEmpty()) return@arrayListOf
                 connection.doOutput = true
                 connection.outputStream.use { it.write(body) }
+            },
+            { response, connection ->
+                val files = response.request.files
+                val data = response.request.data
+                if (files.isNotEmpty()) return@arrayListOf
+                val input = (data as? File)?.inputStream() ?: data as? InputStream ?: return@arrayListOf
+                if (!connection.doOutput) {
+                    connection.doOutput = true
+                }
+                input.use { input ->
+                    connection.outputStream.use { output ->
+                        while (input.available() > 0) {
+                            output.write(
+                                ByteArray(Math.min(4096, input.available())).apply { input.read(this) }
+                            )
+                        }
+                    }
+                }
             }
         )
     }
@@ -101,7 +200,8 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
                         json = this.json,
                         timeout = this.timeout,
                         allowRedirects = false,
-                        stream = this.stream
+                        stream = this.stream,
+                        files = this.files
                     )
                 )
             }

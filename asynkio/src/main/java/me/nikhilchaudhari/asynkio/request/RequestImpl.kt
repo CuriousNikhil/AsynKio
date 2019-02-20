@@ -1,8 +1,10 @@
 package me.nikhilchaudhari.asynkio.request
 
+import me.nikhilchaudhari.asynkio.extensions.RawFiles
 import org.json.JSONArray
 import org.json.JSONObject
 import me.nikhilchaudhari.asynkio.extensions.putAllIfAbsentWithNull
+import me.nikhilchaudhari.asynkio.extensions.writeAndFlush
 import me.nikhilchaudhari.asynkio.helper.CaseInsensitiveMutableMap
 import me.nikhilchaudhari.asynkio.helper.Parameters
 import java.io.StringWriter
@@ -13,6 +15,8 @@ import java.net.URLDecoder
 import org.json.*
 import me.nikhilchaudhari.asynkio.helper.Auth
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.InputStream
 
 
 class RequestImpl internal constructor(
@@ -25,7 +29,8 @@ class RequestImpl internal constructor(
     override val json: Any?,
     override val timeout: Double,
     allowRedirects: Boolean?,
-    override val stream: Boolean
+    override val stream: Boolean,
+    override val files: List<RawFiles>
 ) : Request {
 
     companion object {
@@ -58,7 +63,8 @@ class RequestImpl internal constructor(
         get() {
             if (this._body == null) {
                 val requestData = this.data
-                if (requestData == null) {
+                val files = this.files
+                if (requestData == null && files.isEmpty()) {
                     this._body = ByteArray(0)
                     return this._body
                         ?: throw IllegalStateException("Set to null by another thread")
@@ -72,11 +78,35 @@ class RequestImpl internal constructor(
                 } else {
                     null
                 }
-                if (data != null) {
+                if (data != null && files.isNotEmpty()) {
                     require(data is Map<*, *>) { "data must be a Map" }
                 }
                 val bytes = ByteArrayOutputStream()
-                bytes.write(data.toString().toByteArray())
+                if (files.isNotEmpty()) {
+                    val boundary = this.headers["Content-Type"]!!.split("boundary=")[1]
+                    val writer = bytes.writer()
+                    if (data != null) {
+                        for ((key, value) in data as Map<*, *>) {
+                            writer.writeAndFlush("--$boundary\r\n")
+                            val keyString = key.toString()
+                            writer.writeAndFlush("Content-Disposition: form-data; name=\"$keyString\"\r\n\r\n")
+                            writer.writeAndFlush(value.toString())
+                            writer.writeAndFlush("\r\n")
+                        }
+                    }
+                    files.forEach {
+                        writer.writeAndFlush("--$boundary\r\n")
+                        writer.writeAndFlush(
+                            "Content-Disposition: form-data; name=\"${it.fieldName}\"; " +
+                                    "filename=\"${it.fileName}\"\r\n\r\n")
+                        bytes.write(it.contents)
+                        writer.writeAndFlush("\r\n")
+                    }
+                    writer.writeAndFlush("--$boundary--\r\n")
+                    writer.close()
+                } else if (data !is File && data !is InputStream) {
+                    bytes.write(data.toString().toByteArray())
+                }
                 this._body = bytes.toByteArray()
             }
             return this._body ?: throw IllegalStateException("Set to null by another thread")

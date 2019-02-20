@@ -32,4 +32,8 @@ interface Response {
 
     val connection: HttpURLConnection
 
+    fun contentIterator(chunkSize: Int = 1): Iterator<ByteArray>
+
+    fun lineIterator(chunkSize: Int = 512, delimiter: ByteArray? = null): Iterator<ByteArray>
+
 }

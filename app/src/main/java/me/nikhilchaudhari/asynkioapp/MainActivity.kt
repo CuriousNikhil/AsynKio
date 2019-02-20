@@ -1,10 +1,12 @@
 package me.nikhilchaudhari.asynkioapp
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.support.v7.app.AppCompatActivity
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_main.*
-import me.nikhilchaudhari.asynkio.core.*
+import me.nikhilchaudhari.asynkio.core.async
+import me.nikhilchaudhari.asynkio.core.get
+import me.nikhilchaudhari.asynkio.core.post
 import me.nikhilchaudhari.asynkio.helper.BaseAuth
 import org.json.JSONObject
 
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         }
         get("some", data = JSONObject(data))
 
+
         async {
             val response = await {
                 val one = get("https://isthisawesome.com/library", auth = BaseAuth("Authorization","awesome:me"), params = mapOf("library" to "Asynkio"))
@@ -30,6 +33,15 @@ class MainActivity : AppCompatActivity() {
             if (response.statusCode == 200){
                 result_text.text = response.text
             }
+
+
+        }
+
+
+        async {
+            val observable = Observable.just("Belllooo")
+            val result = await { observable }
+
         }
     }
 
