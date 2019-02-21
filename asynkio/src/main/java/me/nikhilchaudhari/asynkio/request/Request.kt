@@ -1,6 +1,6 @@
 package me.nikhilchaudhari.asynkio.request
 
-import me.nikhilchaudhari.asynkio.extensions.RawFiles
+import me.nikhilchaudhari.asynkio.helper.RawFiles
 import me.nikhilchaudhari.asynkio.helper.Auth
 
 interface Request {

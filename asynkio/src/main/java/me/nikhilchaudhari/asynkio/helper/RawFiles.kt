@@ -1,4 +1,4 @@
-package me.nikhilchaudhari.asynkio.extensions
+package me.nikhilchaudhari.asynkio.helper
 
 import java.io.File
 import java.nio.file.Path

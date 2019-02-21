@@ -2,7 +2,7 @@
 
 package me.nikhilchaudhari.asynkio.core
 
-import me.nikhilchaudhari.asynkio.extensions.RawFiles
+import me.nikhilchaudhari.asynkio.helper.RawFiles
 import me.nikhilchaudhari.asynkio.helper.Auth
 import me.nikhilchaudhari.asynkio.request.RequestImpl
 import me.nikhilchaudhari.asynkio.response.Response
