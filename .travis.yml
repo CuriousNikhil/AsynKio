@@ -1,3 +1,22 @@
-language: java
+language: android
+
+env:
+- REVIEWDOG_VERSION=0.9.11
+
 jdk:
 - oraclejdk8
+
+android:
+  components:
+  - tools
+  - build-tools-28.0.3
+  - android-28
+  licenses:
+  - 'android-sdk-license-.+'
+
+before_install:
+- yes | sdkmanager "platforms;android-28"
+
+cache:
+  directories:
+  - $HOME/.gradle
