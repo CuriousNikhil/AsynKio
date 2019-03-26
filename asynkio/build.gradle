@@ -11,7 +11,7 @@ ext{
 
     publishedGroupId = 'me.nikhilchaudhari'
     artifact = 'asynkio'
-    libraryVersion = '1.0.1'
+    libraryVersion = '1.0.2'
 
     libraryDescription = 'Asynchrounous async-await port of python in Kotlin'
     siteUrl = 'https://github.com/CuriousNikhil/AsynKio'
