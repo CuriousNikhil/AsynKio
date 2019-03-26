@@ -17,6 +17,7 @@ import me.nikhilchaudhari.asynkio.helper.Auth
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
+import java.util.*
 
 
 class RequestImpl internal constructor(
@@ -123,11 +124,25 @@ class RequestImpl internal constructor(
 
         if (json == null) {
             this.data = data
+            if (data != null && this.files.isEmpty()) {
+                if (data is Map<*, *>) {
+                    mutableHeaders.putAllIfAbsentWithNull(RequestImpl.DEFAULT_FORM_HEADERS)
+                } else {
+                    mutableHeaders.putAllIfAbsentWithNull(RequestImpl.DEFAULT_DATA_HEADERS)
+                }
+            }
         } else {
             this.data = this.coerceToJSON(json)
             mutableHeaders.putAllIfAbsentWithNull(RequestImpl.DEFAULT_JSON_HEADERS)
         }
         mutableHeaders.putAllIfAbsentWithNull(RequestImpl.DEFAULT_HEADERS)
+
+        if (this.files.isNotEmpty()) {
+            mutableHeaders.putAllIfAbsentWithNull(RequestImpl.DEFAULT_UPLOAD_HEADERS)
+            if ("Content-Type" in mutableHeaders) {
+                mutableHeaders["Content-Type"] = mutableHeaders["Content-Type"]?.format(UUID.randomUUID().toString().replace("-", ""))
+            }
+        }
 
         val auth = this.auth
         if (auth != null) {
