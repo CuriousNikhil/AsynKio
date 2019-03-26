@@ -1,8 +1,10 @@
 package me.nikhilchaudhari.asynkioapp
 
+import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.activity_main.*
 import me.nikhilchaudhari.asynkio.core.async
 import me.nikhilchaudhari.asynkio.core.get
@@ -38,6 +40,19 @@ class MainActivity : AppCompatActivity() {
             result_text.text = response.text
 
         }
+
+
+        async {
+            val observable = Observable.just("O")
+            val result = await(observable)
+        }
+
+        val mutableLivedata = MutableLiveData<String>()
+        async {
+            mutableLivedata.postValue("SomeString")
+            val result  = await(mutableLivedata)
+        }
+
     }
 
     override fun onDestroy() {
