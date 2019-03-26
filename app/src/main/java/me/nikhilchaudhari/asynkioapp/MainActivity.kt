@@ -7,7 +7,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import me.nikhilchaudhari.asynkio.core.async
 import me.nikhilchaudhari.asynkio.core.get
 import me.nikhilchaudhari.asynkio.core.post
-import me.nikhilchaudhari.asynkio.extensions.fileLike
+import me.nikhilchaudhari.asynkio.extensions.asFile
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
             val response = await {
                 post(
                     "http://mystikolabs.xyz:5000",
-                    files = listOf(outputFile.fileLike("file"))
+                    files = listOf(outputFile.asFile("file"))
                 )
             }
             Toast.makeText(this@MainActivity, "some", Toast.LENGTH_LONG).show()

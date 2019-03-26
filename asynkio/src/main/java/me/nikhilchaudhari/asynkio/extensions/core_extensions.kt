@@ -10,10 +10,10 @@ class AsyncException(e: Exception, stackTrace: Array<out StackTraceElement>) : R
     }
 }
 
-fun File.fileLike(name: String = this.name) = RawFiles(name, this)
+fun File.asFile(name: String = this.name) = RawFiles(name, this)
 
-fun Path.fileLike() = RawFiles(this)
+fun Path.asFile() = RawFiles(this)
 
-fun Path.fileLike(name: String) = RawFiles(name, this)
+fun Path.asFile(name: String) = RawFiles(name, this)
 
-fun String.fileLike(name: String) = RawFiles(name, this)
+fun String.asFile(name: String) = RawFiles(name, this)
