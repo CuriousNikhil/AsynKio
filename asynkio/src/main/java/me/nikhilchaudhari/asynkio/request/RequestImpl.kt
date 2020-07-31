@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.InputStream
 import java.util.*
+import javax.net.ssl.SSLContext
 
 
 class RequestImpl internal constructor(
@@ -31,7 +32,8 @@ class RequestImpl internal constructor(
     override val timeout: Double,
     allowRedirects: Boolean?,
     override val stream: Boolean,
-    override val files: List<RawFiles>
+    override val files: List<RawFiles>,
+    override val sslContext: SSLContext?
 ) : Request {
 
     companion object {

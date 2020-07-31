@@ -2,6 +2,7 @@ package me.nikhilchaudhari.asynkio.request
 
 import me.nikhilchaudhari.asynkio.helper.RawFiles
 import me.nikhilchaudhari.asynkio.helper.Auth
+import javax.net.ssl.SSLContext
 
 interface Request {
 
@@ -28,5 +29,7 @@ interface Request {
     val stream: Boolean
 
     val files: List<RawFiles>
+
+    val sslContext: SSLContext?
 
 }

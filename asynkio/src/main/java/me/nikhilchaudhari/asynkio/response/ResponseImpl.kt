@@ -19,6 +19,7 @@ import java.nio.charset.Charset
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.InflaterInputStream
+import javax.net.ssl.HttpsURLConnection
 
 
 class ResponseImpl internal constructor(override val request: Request) : Response {
@@ -141,6 +142,13 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
                     connection.connectTimeout = timeout
                     connection.readTimeout = timeout
                 },
+                { response, connection ->
+                    response.request.sslContext?.let {
+                        if (connection is HttpsURLConnection) {
+                            connection.sslSocketFactory = it.socketFactory
+                        }
+                    }
+                },
                 { _, connection ->
                     connection.instanceFollowRedirects = false
                 }
@@ -201,7 +209,8 @@ class ResponseImpl internal constructor(override val request: Request) : Respons
                         timeout = this.timeout,
                         allowRedirects = false,
                         stream = this.stream,
-                        files = this.files
+                        files = this.files,
+                        sslContext = this.sslContext
                     )
                 )
             }
