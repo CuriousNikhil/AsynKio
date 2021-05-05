@@ -1,7 +1,9 @@
 # Asynkio : Write asynced IO/ Network calls painlessly on android
 
+<hr/>
 
-~~~ warning
+### ! Warning !
+~~~
 This library is no longer being maintained. Please make your code to use existing kotlin-coroutines features.
 The feature of async and await is now added in the kotlin-coroutines library itself. 
 You can check [!here](https://kotlinlang.org/docs/composing-suspending-functions.html#structured-concurrency-with-async)
@@ -9,7 +11,7 @@ You can check [!here](https://kotlinlang.org/docs/composing-suspending-functions
 <br/>
 <br/>
 <br/>
-
+<hr/>
 
 [![Awesome Kotlin Badge](https://kotlin.link/awesome-kotlin.svg)](https://github.com/KotlinBy/awesome-kotlin)|
 [ ![Download](https://api.bintray.com/packages/curiousnikhil/Asynkio/me.nikhilchaudhari.asynkio/images/download.svg?version=1.0.2) ](https://bintray.com/curiousnikhil/Asynkio/me.nikhilchaudhari.asynkio/1.0.2/link)|
