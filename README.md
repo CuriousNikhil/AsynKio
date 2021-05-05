@@ -2,11 +2,11 @@
 
 <hr/>
 
-### ⚠️
+### ⚠️ Warning :warning:
 
-> :warning: This library is no longer being maintained. Please make your code to use existing kotlin-coroutines features.
+>  This library is no longer being maintained. Please make your code to use existing kotlin-coroutines features.
 The feature of async and await is now added in the kotlin-coroutines library itself. 
-You can check [!here](https://kotlinlang.org/docs/composing-suspending-functions.html#structured-concurrency-with-async)
+You can check [here](https://kotlinlang.org/docs/composing-suspending-functions.html#structured-concurrency-with-async)
 <hr/>
 
 <br/>
